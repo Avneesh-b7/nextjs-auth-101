@@ -13,119 +13,6 @@
 // 7. complete the login function (axios sends a req. to the backend on login button click)
 //8. make sure we are logging all importatn things which could help us debug the application
 
-"use client";
-
-import React from "react";
-import Link from "next/link";
-
-function LoginPage() {
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#000000",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "420px",
-          padding: "2rem",
-          backgroundColor: "#0f0f0f",
-          border: "1px solid #262626",
-          borderRadius: "8px",
-        }}
-      >
-        <h1 style={{ color: "#ffffff", marginBottom: "0.5rem" }}>
-          Welcome back
-        </h1>
-        <p style={{ color: "#a3a3a3", marginBottom: "1.5rem" }}>
-          Log in to continue
-        </p>
-
-        <form>
-          <div style={{ marginBottom: "1rem" }}>
-            <label htmlFor="email" style={{ color: "#d4d4d4" }}>
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="jane.doe@example.com"
-              style={{
-                width: "100%",
-                padding: "10px",
-                marginTop: "6px",
-                backgroundColor: "#000000",
-                border: "1px solid #262626",
-                borderRadius: "6px",
-                color: "#ffffff",
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label htmlFor="password" style={{ color: "#d4d4d4" }}>
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              style={{
-                width: "100%",
-                padding: "10px",
-                marginTop: "6px",
-                backgroundColor: "#000000",
-                border: "1px solid #262626",
-                borderRadius: "6px",
-                color: "#ffffff",
-              }}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled
-            style={{
-              width: "100%",
-              padding: "12px",
-              backgroundColor: "#ffffff",
-              color: "#000000",
-              border: "none",
-              borderRadius: "6px",
-              fontWeight: 600,
-              cursor: "not-allowed",
-            }}
-          >
-            Log In
-          </button>
-        </form>
-
-        <p
-          style={{
-            marginTop: "1.25rem",
-            textAlign: "center",
-            color: "#a3a3a3",
-          }}
-        >
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" style={{ color: "#ffffff" }}>
-            Sign up
-          </Link>
-        </p>
-      </div>
-    </div>
-  );
-}
-
-export default LoginPage;
-*/
-
-"use client";
 
 /**
  * USAGE GUIDELINES:
@@ -134,11 +21,20 @@ export default LoginPage;
  * - Shows toast feedback and routes on success.
  */
 
+/**
+ * USAGE GUIDELINES:
+ * - Handles login UI + API integration.
+ * - Validates inputs and disables submit until valid.
+ * - Shows toast feedback and revalidates auth state on success.
+ */
+
+"use client";
+
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 function LoginPage() {
   const router = useRouter();
@@ -178,25 +74,19 @@ function LoginPage() {
         password,
       });
 
-      console.log("[LOGIN_FE] Login success response", res.data);
+      console.log("[LOGIN_FE] Login success", res.data);
 
-      const { id, name } = res.data;
+      toast.success("Login successful 👋");
 
-      toast.success(`Welcome back, ${name}!`, {
-        position: "top-right",
-        autoClose: 1500,
-      });
-
-      // Route to profile using ID
-      setTimeout(() => {
-        router.push(`/profile/${id}?name=${encodeURIComponent(name)}`);
-      }, 1500);
+      // 🔑 IMPORTANT:
+      // Navigate + refresh so layout re-runs getCurrentUser()
+      router.push("/");
+      router.refresh();
     } catch (err: any) {
       console.error("[LOGIN_FE] Login failed", err);
 
       toast.error(
-        err?.response?.data?.message || "Login failed. Please try again.",
-        { position: "top-right" }
+        err?.response?.data?.message || "Login failed. Please try again."
       );
     } finally {
       setLoading(false);
@@ -207,101 +97,97 @@ function LoginPage() {
   // UI
   // -----------------------------
   return (
-    <>
-      <ToastContainer />
-
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#000000",
+      }}
+    >
       <div
         style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#000000",
+          width: "100%",
+          maxWidth: "420px",
+          padding: "2rem",
+          backgroundColor: "#0f0f0f",
+          border: "1px solid #262626",
+          borderRadius: "8px",
         }}
       >
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "420px",
-            padding: "2rem",
-            backgroundColor: "#0f0f0f",
-            border: "1px solid #262626",
-            borderRadius: "8px",
-          }}
-        >
-          <h1 style={{ color: "#ffffff", marginBottom: "0.5rem" }}>
-            Welcome back
-          </h1>
-          <p style={{ color: "#a3a3a3", marginBottom: "1.5rem" }}>
-            Log in to continue
-          </p>
+        <h1 style={{ color: "#ffffff", marginBottom: "0.5rem" }}>
+          Welcome back
+        </h1>
+        <p style={{ color: "#a3a3a3", marginBottom: "1.5rem" }}>
+          Log in to continue
+        </p>
 
-          <form onSubmit={handleLogin}>
-            {/* Email */}
-            <div style={{ marginBottom: "1rem" }}>
-              <label style={{ color: "#d4d4d4" }}>Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="jane.doe@example.com"
-                style={inputStyle}
-              />
-            </div>
+        <form onSubmit={handleLogin}>
+          {/* Email */}
+          <div style={{ marginBottom: "1rem" }}>
+            <label style={{ color: "#d4d4d4" }}>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="jane.doe@example.com"
+              style={inputStyle}
+            />
+          </div>
 
-            {/* Password */}
-            <div style={{ marginBottom: "1.5rem" }}>
-              <label style={{ color: "#d4d4d4" }}>Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                style={inputStyle}
-              />
-            </div>
+          {/* Password */}
+          <div style={{ marginBottom: "1.5rem" }}>
+            <label style={{ color: "#d4d4d4" }}>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              style={inputStyle}
+            />
+          </div>
 
-            <button
-              type="submit"
-              disabled={!isFormValid || loading}
-              style={{
-                width: "100%",
-                padding: "12px",
-                borderRadius: "6px",
-                fontWeight: 600,
-                backgroundColor: isFormValid ? "#ffffff" : "#404040",
-                color: isFormValid ? "#000000" : "#a3a3a3",
-                cursor: isFormValid ? "pointer" : "not-allowed",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                if (isFormValid)
-                  e.currentTarget.style.backgroundColor = "#e5e5e5";
-              }}
-              onMouseLeave={(e) => {
-                if (isFormValid)
-                  e.currentTarget.style.backgroundColor = "#ffffff";
-              }}
-            >
-              {loading ? "Logging in..." : "Log In"}
-            </button>
-          </form>
-
-          <p
+          <button
+            type="submit"
+            disabled={!isFormValid || loading}
             style={{
-              marginTop: "1.25rem",
-              textAlign: "center",
-              color: "#a3a3a3",
+              width: "100%",
+              padding: "12px",
+              borderRadius: "6px",
+              fontWeight: 600,
+              backgroundColor: isFormValid ? "#ffffff" : "#404040",
+              color: isFormValid ? "#000000" : "#a3a3a3",
+              cursor: isFormValid ? "pointer" : "not-allowed",
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              if (isFormValid)
+                e.currentTarget.style.backgroundColor = "#e5e5e5";
+            }}
+            onMouseLeave={(e) => {
+              if (isFormValid)
+                e.currentTarget.style.backgroundColor = "#ffffff";
             }}
           >
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" style={{ color: "#ffffff" }}>
-              Sign up
-            </Link>
-          </p>
-        </div>
+            {loading ? "Logging in..." : "Log In"}
+          </button>
+        </form>
+
+        <p
+          style={{
+            marginTop: "1.25rem",
+            textAlign: "center",
+            color: "#a3a3a3",
+          }}
+        >
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" style={{ color: "#ffffff" }}>
+            Sign up
+          </Link>
+        </p>
       </div>
-    </>
+    </div>
   );
 }
 

@@ -23,17 +23,53 @@ just give me the UI for now, we will later work on the functinoality.
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
-type ActiveButton = "login" | "signup" | "logout" | null;
+type ActiveButton = "login" | "signup" | "logout" | "profile" | null;
+interface NavbarProps {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  } | null;
+}
 
-const Navbar = () => {
+const Navbar = ({ user }: NavbarProps) => {
   const router = useRouter();
 
   // -----------------------------
   // TEMP auth + UI state
   // -----------------------------
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeButton, setActiveButton] = useState<ActiveButton>(null);
+
+  const isLoggedIn = Boolean(user);
+
+  const handleLogout = async () => {
+    console.log("[NAVBAR] Logout clicked");
+
+    try {
+      const res = await fetch("/api/users/logout", {
+        method: "GET",
+      });
+
+      if (!res.ok) {
+        toast.error("Logout failed. Please try again.");
+        console.error("[NAVBAR] Logout failed");
+        return;
+      }
+
+      toast.success("Logged out successfully 👋");
+
+      // Navigate + revalidate auth state
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("[NAVBAR] Logout error", error);
+      toast.error("Something went wrong while logging out.");
+    }
+  };
 
   const handleNavigate = (key: ActiveButton, path: string) => {
     console.log("[NAVBAR] Clicked:", key);
@@ -75,17 +111,25 @@ const Navbar = () => {
 
           {isLoggedIn && (
             <>
-              <span className="user-greeting">
-                👋 Hello <strong>User</strong>
+              <span className="user-greeting ">
+                User : <strong>{user?.name}</strong>
               </span>
+              <NavButton
+                label="Go To Profile"
+                primary={activeButton === "profile"}
+                onClick={() =>
+                  handleNavigate("profile", `/profile/${user!.id}`)
+                }
+              />
               <NavButton
                 label="Logout"
                 primary={activeButton === "logout"}
                 onClick={() => {
-                  console.log("[NAVBAR] Logout clicked (UI only)");
-                  setActiveButton("logout");
-                  setIsLoggedIn(false);
-                  router.push("/");
+                  // console.log("[NAVBAR] Logout clicked (UI only)");
+                  // setActiveButton("logout");
+                  // // setIsLoggedIn(false);
+                  // router.push("/");
+                  handleLogout();
                 }}
               />
             </>
