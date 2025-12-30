@@ -38,17 +38,17 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Authentication Flow (End-to-End)
 
 ```mermaid
+
 flowchart TD
     %% Browser
-    A[User Browser] -->|Request + Cookies|
-    B[Next.js Middleware]
+    A[User Browser] -->|Request + Cookies| B[Next.js Middleware]
 
     %% Middleware routing logic
     B -->|No token & protected route| C[Redirect to /login]
     B -->|Token exists OR public route| D[Server Component]
 
     %% Server-side auth
-    D --> E[getCurrentUser()]
+    D --> E[getCurrentUser]
 
     %% Token checks
     E -->|Valid token & DB match| F[Authenticated User]
@@ -59,13 +59,13 @@ flowchart TD
     G --> I[Navbar shows Login + Signup]
 
     %% Profile protection
-    H --> J[/profile/[id]]
+    H --> J["/profile/id"]
     J -->|id matches logged-in user| K[Show Profile Page]
     J -->|id does NOT match| L[Redirect to Own Profile]
 
     %% Login flow
     I --> M[Login Page]
-    M -->|POST email & password| N[/api/users/login]
+    M -->|POST email & password| N["/api/users/login"]
     N -->|Validate & create token| O[Set HTTP-only Cookie]
     O --> P[Redirect to Home]
 ```
