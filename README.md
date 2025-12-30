@@ -40,7 +40,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ```mermaid
 flowchart TD
     %% Browser
-    A[User Browser] -->|Request + Cookies| B[Next.js Middleware]
+    A[User Browser] -->|Request + Cookies|
+    B[Next.js Middleware]
 
     %% Middleware routing logic
     B -->|No token & protected route| C[Redirect to /login]
